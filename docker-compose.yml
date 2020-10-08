@@ -1,0 +1,16 @@
+version: '3.7'
+services:
+  maven:
+    build: mvn
+    volumes:
+      - app:/webapps
+
+  tomcat:
+    build: tom
+    ports:
+      - "8888:8080"
+    volumes:
+      - app:/opt/tomcat/webapps
+volumes:
+  app:
+
