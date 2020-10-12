@@ -1,0 +1,84 @@
+---
+- name: int
+  hosts: web
+  become: yes
+
+  tasks:
+  - name: install packages
+    apt: name={{ item }} update_cache=yes state=latest
+    with_items:
+    - git
+    - docker
+    - docker-compose
+
+  - name: delete dir
+    file: dest=/home/nonroot/devops state=absent
+
+  - name: create dir
+    file: dest=/home/nonroot/devops state=directory mode=0777
+
+
+  - name: clone repo
+    git:
+    accept_hostkey: yes
+    repo: 'https://github.com/integrator-sev/dock.git'
+    dest: /home/nonroot/devops
+
+
+  - name: Stop all services
+    docker_compose:
+      project_src: /home/nonroot/devops
+      build: no
+      stopped: yes
+
+
+  - name: build image for production
+    docker_compose:
+      project_name: devops
+      project_src: /home/nonroot/devops
+      services: present
+
+  - name: Log into DockerHub
+    docker_login:
+      username: integratorsev
+      password: 17092002
+
+  - name: push
+    docker_image:
+      name: mytomcat-experimental:latest
+      repository: integratorsev/mytomcat8:1
+      push: yes
+      source: local
+
+  - name: Logout DockerHub
+    docker_login:
+      state: absent
+
+  - name: Prune everything
+    docker_prune:
+      containers: yes
+      images: yes
+
+
+- name: prod
+  hosts: db
+  become: yes
+
+  tasks:
+  - name: install packages
+    apt: name={{ item }} update_cache=yes state=latest
+    with_items:
+      - docker
+
+  - name: clean
+    docker_prune:
+      containers: yes
+      images: yes
+
+  - name: zapusk
+    docker_container:
+      name: mytomcat
+      image: mytomcat8:1
+      ports:
+        - "8888:8080"
+      state: started
