@@ -1,17 +1,8 @@
 version: '3.5'
 services:
-  maven:
-    build: mvn
-    volumes:
-      - app:/webapps
-
   tomcat:
     build: tom
     image: mytomcat-experimental
     ports:
       - "8888:8080"
-    volumes:
-      - app:/opt/for_tom
-volumes:
-  app:
 

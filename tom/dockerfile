@@ -1,5 +1,8 @@
 FROM alpine
-RUN apk add --no-cache wget tar openjdk8  && mkdir /opt/tomcat && mkdir /opt/for_tom && wget https://downloads.apache.org/tomcat/tomcat-8/v8.5.58/bin/apache-tomcat-8.5.58.tar.gz && tar xvf apache-tomcat-*tar.gz -C /opt/tomcat --strip-components=1
-RUN cp /opt/for_tom/test.war /opt/tomcat/webapps
+RUN apk add --no-cache wget tar openjdk8 git maven  && mkdir /opt/tom  && mkdir /opt/tomcat && wget https://downloads.apache.org/tomcat/tomcat-8/v8.5.58/bin/apache-to$
+RUN git clone https://github.com/boxfuse/boxfuse-sample-java-war-hello.git /opt/git/boxfuse-sample-java-war-hello/
+RUN mvn clean package -f /opt/git/boxfuse-sample-java-war-hello/pom.xml
+RUN cp /opt/git/boxfuse-sample-java-war-hello/target/*.war  /opt/tomcat/webapps/test.war
+RUN rm -rf /opt/git/boxfuse-sample-java-war-hello/ && apk del maven
 EXPOSE 8080
 ENTRYPOINT ["/opt/tomcat/bin/catalina.sh", "run"]
