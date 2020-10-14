@@ -1,8 +1,22 @@
 version: '3.5'
 services:
+  services:
+  maven:
+    build: mvn
+    volumes:
+      - data:/webapps
+
   tomcat:
     build: tom
     image: mytomcat-experimental:1
     ports:
       - "8888:8080"
+
+volumes:
+  data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./tom/app
 
